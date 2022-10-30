@@ -1,0 +1,17 @@
+# github repository 조회
+query AppSearchRepositoryQuery($keyword: String!) {
+  search(query: $keyword, type: REPOSITORY, first: 10) {
+    edges {
+      node {
+        ... on Repository {
+          name
+          nameWithOwner
+          description
+          # stargazers
+        }
+      }
+    }
+  }
+}
+
+# TODO fragment 
