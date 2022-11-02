@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<9e6e3112d89feadc5cd588c21fdfac2e>>
+ * @generated SignedSource<<3217e635907f2fb8c29b34f14badc883>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,9 +19,10 @@ export type AppSearchRepositoryQuery$data = {
       readonly cursor: string;
       readonly node: {
         readonly description?: string | null;
+        readonly id?: string;
         readonly name?: string;
-        readonly nameWithOwner?: string;
         readonly stargazerCount?: number;
+        readonly viewerHasStarred?: boolean;
       } | null;
     } | null> | null;
     readonly pageInfo: {
@@ -76,20 +77,21 @@ v3 = {
   "storageKey": null
 },
 v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v5 = {
   "kind": "InlineFragment",
   "selections": [
+    (v4/*: any*/),
     {
       "alias": null,
       "args": null,
       "kind": "ScalarField",
       "name": "name",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "nameWithOwner",
       "storageKey": null
     },
     {
@@ -105,12 +107,19 @@ v4 = {
       "kind": "ScalarField",
       "name": "stargazerCount",
       "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "viewerHasStarred",
+      "storageKey": null
     }
   ],
   "type": "Repository",
   "abstractKey": null
 },
-v5 = {
+v6 = {
   "alias": null,
   "args": null,
   "concreteType": "PageInfo",
@@ -170,14 +179,14 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/)
+                  (v5/*: any*/)
                 ],
                 "storageKey": null
               }
             ],
             "storageKey": null
           },
-          (v5/*: any*/)
+          (v6/*: any*/)
         ],
         "storageKey": null
       }
@@ -226,17 +235,11 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v4/*: any*/),
+                  (v5/*: any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "id",
-                        "storageKey": null
-                      }
+                      (v4/*: any*/)
                     ],
                     "type": "Node",
                     "abstractKey": "__isNode"
@@ -247,23 +250,23 @@ return {
             ],
             "storageKey": null
           },
-          (v5/*: any*/)
+          (v6/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "6805a47f1c797bad5a059a44ceaeaa38",
+    "cacheID": "42d07d11a5dd297e9268abb982cbd3ac",
     "id": null,
     "metadata": {},
     "name": "AppSearchRepositoryQuery",
     "operationKind": "query",
-    "text": "query AppSearchRepositoryQuery(\n  $keyword: String!\n  $after: String\n) {\n  search(query: $keyword, type: REPOSITORY, first: 10, after: $after) {\n    edges {\n      cursor\n      node {\n        __typename\n        ... on Repository {\n          name\n          nameWithOwner\n          description\n          stargazerCount\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query AppSearchRepositoryQuery(\n  $keyword: String!\n  $after: String\n) {\n  search(query: $keyword, type: REPOSITORY, first: 10, after: $after) {\n    edges {\n      cursor\n      node {\n        __typename\n        ... on Repository {\n          id\n          name\n          description\n          stargazerCount\n          viewerHasStarred\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "80b5cc32ff51604c59df3cbabcd002b3";
+(node as any).hash = "b2d3d7ce01f228abf8d9b4960e171e1e";
 
 export default node;

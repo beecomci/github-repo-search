@@ -1,15 +1,15 @@
 import React, { memo, useState } from 'react';
 
 type Props = {
-  onSubmit: (keyword: string) => void;
+  searchInput: (keyword: string) => void;
 };
 
-const SearchSection = ({ onSubmit } : Props): JSX.Element => {
+const SearchSection = ({ searchInput } : Props): JSX.Element => {
   const [keyword, setKeyword] = useState<string>('');
   
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    onSubmit(keyword);
+    searchInput(keyword);
   }
 
   function handleChange(e: React.FormEvent<HTMLInputElement>): void {

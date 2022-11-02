@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { usePreloadedQuery, PreloadedQuery, usePaginationFragment } from 'react-relay';
-import { RepositoryListPaginationFragment, RepositoryListPaginationQuery, SearchRepositoryQuery } from '../App';
+import { usePreloadedQuery, PreloadedQuery, usePaginationFragment, useMutation } from 'react-relay';
+import { RepositoryListPaginationFragment, RepositoryListPaginationQuery, SearchRepositoryQuery, AddStarMutation, RemoveStarMutation } from '../App';
 import type {
   AppRepositoryListPaginationQuery as AppRepositoryListPaginationQueryType,
   AppRepositoryListPaginationQuery$data,
@@ -15,13 +15,19 @@ import type {
 
 type Props = {
   queryRef: PreloadedQuery<AppSearchRepositoryQueryType>;
+  addStar: (id: string) => void;
+  removeStar: (id: string) => void;
+  isAddMutationInFlight: boolean;
+  isRemoveMutationInFlight: boolean;
 };
 
-const SearchResult = (props : Props): JSX.Element => {
+const SearchResult = ({ queryRef, addStar, removeStar, isAddMutationInFlight, isRemoveMutationInFlight } : Props): JSX.Element => {
   const data = usePreloadedQuery<AppSearchRepositoryQueryType>(
     SearchRepositoryQuery,
-    props.queryRef,
+    queryRef,
   );
+  const repositoryListData = data?.search?.edges;
+  const pageInfoData = data?.search?.pageInfo;
   
   // const {
   //   data,
@@ -33,30 +39,36 @@ const SearchResult = (props : Props): JSX.Element => {
   //   ,
   // );
 
-  function handleClick(): void {
-
-  }
-
-  function handleToggleStarClick(): void {
+  function handleMoreClick(): void {
 
   }
 
   return (
     <>
       <ul>
-        {(data?.search?.edges ?? []).map((edge, index) => {
+        {(repositoryListData ?? []).map((edge, index) => {
           const node = edge?.node;
           
           return (
             <li key={index}>
-            <h3>{node?.name}</h3>
-            <p>{node?.description}</p>
-            <button type="button" onClick={handleToggleStarClick}>⭐️{node?.stargazerCount}</button>
-          </li>
+              <h3>{node?.name}</h3>
+              <p>{node?.description}</p>
+              <button 
+                type="button" 
+                onClick={
+                  node?.viewerHasStarred
+                    ? () => removeStar(repositoryListData && repositoryListData[index]?.node?.id || '')
+                    : () => addStar(repositoryListData && repositoryListData[index]?.node?.id || '')
+                }
+                disabled={isAddMutationInFlight || isRemoveMutationInFlight}
+                >
+                  ⭐️{node?.stargazerCount}
+              </button>
+            </li>
           );
         })}
       </ul>
-      {data?.search?.pageInfo?.hasNextPage && <button type="button" onClick={handleClick}>더보기</button>}
+      {pageInfoData?.hasNextPage && <button type="button" onClick={handleMoreClick}>더보기</button>}
     </>
   );
 };

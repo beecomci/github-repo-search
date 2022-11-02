@@ -5,6 +5,7 @@ import {
   loadQuery,
   useQueryLoader,
   PreloadedQuery,
+  useMutation,
 } from 'react-relay/hooks';
 import RelayEnvironment from './RelayEnvironment';
 import './App.css';
@@ -15,6 +16,12 @@ import type {
 import type {
   AppSearchRepositoryQuery as AppSearchRepositoryQueryType,
 } from './__generated__/AppSearchRepositoryQuery.graphql';
+import type {
+  AppAddStarMutation as AppAddStarMutationType,
+} from './__generated__/AppAddStarMutation.graphql';
+import type {
+  AppRemoveStarMutation as AppRemoveStarMutationType,
+} from './__generated__/AppRemoveStarMutation.graphql';
 import SearchSection from './components/SearchSection';
 
 const { Suspense } = React;
@@ -26,10 +33,11 @@ export const SearchRepositoryQuery = graphql`
         cursor
         node {
           ... on Repository {
+            id
             name
-            nameWithOwner
             description
             stargazerCount
+            viewerHasStarred
           }
         }
       }
@@ -41,7 +49,35 @@ export const SearchRepositoryQuery = graphql`
   }
 `;
 
-// usePaginationFragment로 페이지네이션 구현을 위한 쿼리문 -> 실패
+// add star mutation
+export const AddStarMutation = graphql`
+  mutation AppAddStarMutation($input: AddStarInput!) {
+    addStar(input: $input) {
+      starrable {
+        ... on Starrable {
+          stargazerCount
+          viewerHasStarred
+        }
+      }
+    }
+  }
+`;
+
+// remove star mutation
+export const RemoveStarMutation = graphql`
+  mutation AppRemoveStarMutation($input: RemoveStarInput!) {
+    removeStar(input: $input) {
+      starrable {
+        ... on Starrable {
+          stargazerCount
+          viewerHasStarred
+        }
+      }
+    }
+  }
+`;
+
+// TODO : usePaginationFragment로 페이지네이션 구현을 위한 쿼리문 -> 실패
 export const RepositoryListPaginationFragment = graphql`
   fragment AppRepositoryListComponent_repository on Query
     @argumentDefinitions(
@@ -77,10 +113,6 @@ export const RepositoryListPaginationQuery = graphql`
 
 const preloadedQuery = loadQuery(RelayEnvironment, RepositoryListPaginationQuery, {});
 
-type Props = {
-  initialQueryRef: PreloadedQuery<AppSearchRepositoryQueryType>,
-};
-
 function App(props: any) {
   const [
     appSearchRepositoryRef,
@@ -90,18 +122,55 @@ function App(props: any) {
     props.initialQueryRef,
   );
 
-  function handleSubmit(keyword: string): void {
+  const [keyword, setKeyword] = useState('');
+
+  const [addCommitMutation, isAddMutationInFlight] = useMutation<AppAddStarMutationType>(AddStarMutation);
+  const [removeCommitMutation, isRemoveMutationInFlight] = useMutation<AppRemoveStarMutationType>(RemoveStarMutation);
+
+  // refetch data
+  function refreshData(): void {
     loadAppSearchRepositoryQuery({keyword});
+  }
+
+  // search input
+  function onSearchInputSumbmit(keyword: string): void {
+    setKeyword(keyword);
+    loadAppSearchRepositoryQuery({keyword});
+  }
+
+  // add star
+  function onAddStarClick(id: string): void {    
+    addCommitMutation({
+      variables: {
+        input: { starrableId: id }
+      }
+    });
+
+    refreshData();
+  }
+
+  // remove star
+  function onRemoveStarClick(id: string): void {    
+    removeCommitMutation({
+      variables: {
+        input: { starrableId: id }
+      }
+    });
   }
 
   return (
     <div className="App">
       <header className="App-header">
-        <SearchSection onSubmit={handleSubmit} /> 
+        <SearchSection searchInput={onSearchInputSumbmit} /> 
         <Suspense fallback={'Loading...'}>
-          {appSearchRepositoryRef != null 
-            ? <SearchResult queryRef={appSearchRepositoryRef} /> 
-            : null}
+          {appSearchRepositoryRef &&
+            <SearchResult 
+              queryRef={appSearchRepositoryRef} 
+              addStar={onAddStarClick}
+              removeStar={onRemoveStarClick}
+              isAddMutationInFlight={isAddMutationInFlight}
+              isRemoveMutationInFlight={isRemoveMutationInFlight}
+              />}
         </Suspense>
       </header>
     </div>
