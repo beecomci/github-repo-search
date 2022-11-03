@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { graphql } from 'babel-plugin-relay/macro';
 import {
   RelayEnvironmentProvider,
   loadQuery,
   useQueryLoader,
-  PreloadedQuery,
   useMutation,
 } from 'react-relay/hooks';
 import RelayEnvironment from './RelayEnvironment';
@@ -78,40 +77,40 @@ export const RemoveStarMutation = graphql`
 `;
 
 // TODO : usePaginationFragment로 페이지네이션 구현을 위한 쿼리문 -> 실패
-export const RepositoryListPaginationFragment = graphql`
-  fragment AppRepositoryListComponent_repository on Query
-    @argumentDefinitions(
-      keyword: {type: "String!"}
-      first: {type: "Int"}
-      after: {type: "String"}
-    )
-    @refetchable(queryName: "RepositoryListPaginationQuery") {
-      search(query: $keyword, type: REPOSITORY, first: $first, after: $after) @connection(key: "AppRepositoryListComponent_search") {
-        edges {
-          cursor
-          node {
-            ... on Repository {
-              name
-              description
-              stargazerCount
-            }
-          }
-        }
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-      }
-    }
-`;
+// export const RepositoryListPaginationFragment = graphql`
+//   fragment AppRepositoryListComponent_repository on Query
+//     @argumentDefinitions(
+//       keyword: {type: "String!"}
+//       first: {type: "Int"}
+//       after: {type: "String"}
+//     )
+//     @refetchable(queryName: "RepositoryListPaginationQuery") {
+//       search(query: $keyword, type: REPOSITORY, first: $first, after: $after) @connection(key: "AppRepositoryListComponent_search") {
+//         edges {
+//           cursor
+//           node {
+//             ... on Repository {
+//               name
+//               description
+//               stargazerCount
+//             }
+//           }
+//         }
+//         pageInfo {
+//           endCursor
+//           hasNextPage
+//         }
+//       }
+//     }
+// `;
 
-export const RepositoryListPaginationQuery = graphql`
-  query AppRepositoryListPaginationQuery($keyword: String!, $first: Int, $after: String) {
-    ...AppRepositoryListComponent_repository @arguments(keyword: $keyword, first: $first, after: $after)
-  }
-`;
+// export const RepositoryListPaginationQuery = graphql`
+//   query AppRepositoryListPaginationQuery($keyword: String!, $first: Int, $after: String) {
+//     ...AppRepositoryListComponent_repository @arguments(keyword: $keyword, first: $first, after: $after)
+//   }
+// `;
 
-const preloadedQuery = loadQuery(RelayEnvironment, RepositoryListPaginationQuery, {});
+const preloadedQuery = loadQuery(RelayEnvironment, SearchRepositoryQuery, {});
 
 function App(props: any) {
   const [
@@ -128,7 +127,7 @@ function App(props: any) {
   const [removeCommitMutation, isRemoveMutationInFlight] = useMutation<AppRemoveStarMutationType>(RemoveStarMutation);
 
   // refetch data
-  function refreshData(): void {
+  function refetchData(): void {
     loadAppSearchRepositoryQuery({keyword});
   }
 
@@ -138,6 +137,11 @@ function App(props: any) {
     loadAppSearchRepositoryQuery({keyword});
   }
 
+  // click '더보기' 버튼
+  function onMoreDataClick(lastItemCursor: string): void {
+    loadAppSearchRepositoryQuery({keyword, after: lastItemCursor});
+  };
+
   // add star
   function onAddStarClick(id: string): void {    
     addCommitMutation({
@@ -146,7 +150,7 @@ function App(props: any) {
       }
     });
 
-    refreshData();
+    refetchData();
   }
 
   // remove star
@@ -156,6 +160,8 @@ function App(props: any) {
         input: { starrableId: id }
       }
     });
+
+    refetchData();
   }
 
   return (
@@ -168,9 +174,11 @@ function App(props: any) {
               queryRef={appSearchRepositoryRef} 
               addStar={onAddStarClick}
               removeStar={onRemoveStarClick}
+              moreData={onMoreDataClick}
               isAddMutationInFlight={isAddMutationInFlight}
               isRemoveMutationInFlight={isRemoveMutationInFlight}
-              />}
+              />
+            }
         </Suspense>
       </header>
     </div>
