@@ -16,3 +16,10 @@ REACT_APP_GITHUB_AUTH_TOKEN=<TOKEN>
 # 이후 실행 (http://localhost:3000에서 확인 가능)
 $ yarn start
 ```
+
+## 부족했던 점
+
+- fragment 미구현
+- Relay hooks의 usePaginationFragment나 useRefetchableFragment를 활용해서 Pagination 및 refetch 구현을 못한 점
+- 개인적으로 아쉬운 css 미구현
+- graphql 파일 별도로 미분리
