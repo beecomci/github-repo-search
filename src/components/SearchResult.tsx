@@ -5,11 +5,12 @@ import type {
   AppSearchRepositoryQuery as AppSearchRepositoryQueryType,
   AppSearchRepositoryQuery$data
 } from '../__generated__/AppSearchRepositoryQuery.graphql';
+import { useSkipFirstEffect } from '../utils/hooks';
 
 type Props = {
   queryRef: PreloadedQuery<AppSearchRepositoryQueryType>;
-  addStar: (id: string) => void;
-  removeStar: (id: string) => void;
+  addStar: (repositoryId: string, dataLength: number) => void;
+  removeStar: (repositoryId: string, dataLength: number) => void;
   moreData: (lastItemCursor: string) => void;
   isAddMutationInFlight: boolean;
   isRemoveMutationInFlight: boolean;
@@ -31,6 +32,8 @@ const SearchResult = ({ queryRef, addStar, removeStar, moreData, isAddMutationIn
   useEffect(() => {
     if (repositoryListState[0]?.cursor !== repositoryListData[0]?.cursor) {
       setRepositoryListState(repositoryListState.concat(repositoryListData));
+    } else {
+      setRepositoryListState(repositoryListData);
     }
   }, [data]);
 
@@ -45,9 +48,10 @@ const SearchResult = ({ queryRef, addStar, removeStar, moreData, isAddMutationIn
   // );
 
   function onStarClick(viewerHasStarred: boolean, repositoryId: string): void {
+    const dataLength = repositoryListState.length;
     setClickedItemIndex(repositoryId);
-
-    viewerHasStarred ? removeStar(repositoryId) : addStar(repositoryId);
+    
+    viewerHasStarred ? removeStar(repositoryId, dataLength) : addStar(repositoryId, dataLength);
   }
 
   return (
@@ -55,7 +59,7 @@ const SearchResult = ({ queryRef, addStar, removeStar, moreData, isAddMutationIn
       <ul>
         {(repositoryListState ?? []).map((edge, index) => {
           const node = edge?.node;
-          const repositoryId = repositoryListData && repositoryListData[index]?.node?.id || '';
+          const repositoryId = repositoryListState && repositoryListState[index]?.node?.id || '';
           
           return (
             <li key={index}>

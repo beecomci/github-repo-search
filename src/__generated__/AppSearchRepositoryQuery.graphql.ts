@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<3217e635907f2fb8c29b34f14badc883>>
+ * @generated SignedSource<<8b0f9ed40d4638d738560df14db795dc>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -11,6 +11,7 @@
 import { ConcreteRequest, Query } from 'relay-runtime';
 export type AppSearchRepositoryQuery$variables = {
   after?: string | null;
+  first: number;
   keyword: string;
 };
 export type AppSearchRepositoryQuery$data = {
@@ -45,18 +46,23 @@ var v0 = {
 v1 = {
   "defaultValue": null,
   "kind": "LocalArgument",
+  "name": "first"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
   "name": "keyword"
 },
-v2 = [
+v3 = [
   {
     "kind": "Variable",
     "name": "after",
     "variableName": "after"
   },
   {
-    "kind": "Literal",
+    "kind": "Variable",
     "name": "first",
-    "value": 10
+    "variableName": "first"
   },
   {
     "kind": "Variable",
@@ -69,24 +75,24 @@ v2 = [
     "value": "REPOSITORY"
   }
 ],
-v3 = {
+v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "cursor",
   "storageKey": null
 },
-v4 = {
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v5 = {
+v6 = {
   "kind": "InlineFragment",
   "selections": [
-    (v4/*: any*/),
+    (v5/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -119,7 +125,7 @@ v5 = {
   "type": "Repository",
   "abstractKey": null
 },
-v6 = {
+v7 = {
   "alias": null,
   "args": null,
   "concreteType": "PageInfo",
@@ -148,7 +154,8 @@ return {
   "fragment": {
     "argumentDefinitions": [
       (v0/*: any*/),
-      (v1/*: any*/)
+      (v1/*: any*/),
+      (v2/*: any*/)
     ],
     "kind": "Fragment",
     "metadata": null,
@@ -156,7 +163,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "SearchResultItemConnection",
         "kind": "LinkedField",
         "name": "search",
@@ -170,7 +177,7 @@ return {
             "name": "edges",
             "plural": true,
             "selections": [
-              (v3/*: any*/),
+              (v4/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -179,14 +186,14 @@ return {
                 "name": "node",
                 "plural": false,
                 "selections": [
-                  (v5/*: any*/)
+                  (v6/*: any*/)
                 ],
                 "storageKey": null
               }
             ],
             "storageKey": null
           },
-          (v6/*: any*/)
+          (v7/*: any*/)
         ],
         "storageKey": null
       }
@@ -197,6 +204,7 @@ return {
   "kind": "Request",
   "operation": {
     "argumentDefinitions": [
+      (v2/*: any*/),
       (v1/*: any*/),
       (v0/*: any*/)
     ],
@@ -205,7 +213,7 @@ return {
     "selections": [
       {
         "alias": null,
-        "args": (v2/*: any*/),
+        "args": (v3/*: any*/),
         "concreteType": "SearchResultItemConnection",
         "kind": "LinkedField",
         "name": "search",
@@ -219,7 +227,7 @@ return {
             "name": "edges",
             "plural": true,
             "selections": [
-              (v3/*: any*/),
+              (v4/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -235,11 +243,11 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v5/*: any*/),
+                  (v6/*: any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
-                      (v4/*: any*/)
+                      (v5/*: any*/)
                     ],
                     "type": "Node",
                     "abstractKey": "__isNode"
@@ -250,23 +258,23 @@ return {
             ],
             "storageKey": null
           },
-          (v6/*: any*/)
+          (v7/*: any*/)
         ],
         "storageKey": null
       }
     ]
   },
   "params": {
-    "cacheID": "42d07d11a5dd297e9268abb982cbd3ac",
+    "cacheID": "1bd5ba21e73ce23e1915ac162f0eb494",
     "id": null,
     "metadata": {},
     "name": "AppSearchRepositoryQuery",
     "operationKind": "query",
-    "text": "query AppSearchRepositoryQuery(\n  $keyword: String!\n  $after: String\n) {\n  search(query: $keyword, type: REPOSITORY, first: 10, after: $after) {\n    edges {\n      cursor\n      node {\n        __typename\n        ... on Repository {\n          id\n          name\n          description\n          stargazerCount\n          viewerHasStarred\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query AppSearchRepositoryQuery(\n  $keyword: String!\n  $first: Int!\n  $after: String\n) {\n  search(query: $keyword, type: REPOSITORY, first: $first, after: $after) {\n    edges {\n      cursor\n      node {\n        __typename\n        ... on Repository {\n          id\n          name\n          description\n          stargazerCount\n          viewerHasStarred\n        }\n        ... on Node {\n          __isNode: __typename\n          id\n        }\n      }\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "b2d3d7ce01f228abf8d9b4960e171e1e";
+(node as any).hash = "8e41dbcc40422d92cab005afe9b5114c";
 
 export default node;

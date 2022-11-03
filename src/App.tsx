@@ -10,9 +10,6 @@ import RelayEnvironment from './RelayEnvironment';
 import './App.css';
 import SearchResult from './components/SearchResult';
 import type {
-  AppRepositoryListPaginationQuery as AppRepositoryListPaginationQueryType,
-} from './__generated__/AppRepositoryListPaginationQuery.graphql';
-import type {
   AppSearchRepositoryQuery as AppSearchRepositoryQueryType,
 } from './__generated__/AppSearchRepositoryQuery.graphql';
 import type {
@@ -26,8 +23,8 @@ import SearchSection from './components/SearchSection';
 const { Suspense } = React;
 
 export const SearchRepositoryQuery = graphql`
-  query AppSearchRepositoryQuery($keyword: String!, $after: String) {
-    search(query: $keyword, type: REPOSITORY, first: 10, after: $after) {
+  query AppSearchRepositoryQuery($keyword: String!, $first: Int!, $after: String) {
+    search(query: $keyword, type: REPOSITORY, first: $first, after: $after) {
       edges {
         cursor
         node {
@@ -111,6 +108,7 @@ export const RemoveStarMutation = graphql`
 // `;
 
 const preloadedQuery = loadQuery(RelayEnvironment, SearchRepositoryQuery, {});
+const PAGINATION_PAGE = 10;
 
 function App(props: any) {
   const [
@@ -127,41 +125,45 @@ function App(props: any) {
   const [removeCommitMutation, isRemoveMutationInFlight] = useMutation<AppRemoveStarMutationType>(RemoveStarMutation);
 
   // refetch data
-  function refetchData(): void {
-    loadAppSearchRepositoryQuery({keyword});
+  function refetchData(dataLength: number): void {
+    loadAppSearchRepositoryQuery({keyword, first: dataLength});
   }
 
   // search input
   function onSearchInputSumbmit(keyword: string): void {
     setKeyword(keyword);
-    loadAppSearchRepositoryQuery({keyword});
+    loadAppSearchRepositoryQuery({keyword, first: PAGINATION_PAGE});
   }
 
   // click '더보기' 버튼
   function onMoreDataClick(lastItemCursor: string): void {
-    loadAppSearchRepositoryQuery({keyword, after: lastItemCursor});
+    loadAppSearchRepositoryQuery({keyword, first: PAGINATION_PAGE, after: lastItemCursor});
   };
 
   // add star
-  function onAddStarClick(id: string): void {    
-    addCommitMutation({
+  async function onAddStarClick(repositoryId: string, dataLength: number): Promise<void> {    
+    const result = await addCommitMutation({
       variables: {
-        input: { starrableId: id }
+        input: { starrableId: repositoryId }
       }
     });
 
-    refetchData();
+    if (result) {
+      await refetchData(dataLength);
+    }
   }
 
   // remove star
-  function onRemoveStarClick(id: string): void {    
-    removeCommitMutation({
+  async function onRemoveStarClick(repositoryId: string, dataLength: number): Promise<void> {    
+    const result = await removeCommitMutation({
       variables: {
-        input: { starrableId: id }
+        input: { starrableId: repositoryId }
       }
     });
 
-    refetchData();
+    if (result) {
+      await refetchData(dataLength);
+    }
   }
 
   return (
